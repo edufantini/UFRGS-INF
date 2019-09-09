@@ -1,0 +1,25 @@
+Símbolo         Valor Decimal   Valor Hexadecimal
+-------         -------------   -----------------
+ADR                       195                  C3
+LD                        209                  D1
+LB                        210                  D2
+NU                        211                  D3
+LT                        212                  D4
+LOOP_A                     18                  12
+LOOP_B                     34                  22
+LOOP_C                     50                  32
+LOOP_D                     66                  42
+F_LB_A                     82                  52
+F_LD_A                     90                  5A
+F_NU_A                     98                  62
+F_LB_B                    106                  6A
+F_LD_B                    114                  72
+F_NU_B                    122                  7A
+F_LB_C                    130                  82
+F_LD_C                    138                  8A
+F_NU_C                    146                  92
+F_LB_D                    154                  9A
+F_LD_D                    162                  A2
+F_NU_D                    170                  AA
+PROX                      178                  B2
+FIM                       186                  BA

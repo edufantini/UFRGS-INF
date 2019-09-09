@@ -1,0 +1,10 @@
+Instrucoes (resumidas) para o uso do MetaCorretor:
+
+1 - Copie o executavel (MetaCorretor.exe) para a mesma pasta onde estao os arquivos de memoria do Ramses (*.MEM) a serem testados
+2 - Copie o script de testes (<arquivo>.RAC) para esta mesma pasta
+3 - Execute o MetaCorretor e selecione a opcao processador RAMSES
+3 - Quando ele pedir um arquivo de comandos, selecione <arquivo>.RAC
+5 - Quando o MetaCorretor termina, e' criado na mesma pasta o arquivo <arquivo>.RAS, com uma descricao do resultado dos testes (abra com o seu editor de texto preferido e verifique os resultados)
+
+
+Observacao: o MetaCorretor considera todos os arquivos *.MEM da pasta como sendo arquivos a serem testados. Assim, para nao produzir efeitos indesejados, remova desta pasta todos os arquivos *.MEM que nao sejam uma solucao para o problema proposto.

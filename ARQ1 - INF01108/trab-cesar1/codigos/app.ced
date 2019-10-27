@@ -1,0 +1,631 @@
+
+;
+;*************************************************************
+;
+;		Programa de Refer?ncia para desenvolvimento da aplica??o
+;
+;		2019/2
+;
+;		Lisboa, Rafael e Cechin
+;
+;*************************************************************
+
+;
+;=============================================================
+;		Endere?os para a aplica??o e para o _SISTEMA
+;=============================================================
+_APP:		equ		h0100
+_SISTEMA:	equ		h0080
+
+;
+;=============================================================
+;		Fun??es de _SISTEMA
+;
+;		Forma de Chamada:
+;			mov		#CODIGO_DA_FUNCAO,r5
+;			jsr		r7,_SISTEMA
+;=============================================================
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Informa se foi digitada alguma tecla. N?o bloqueia.
+;Entra:		-
+;Retorna:	R0==0, se nada foi digitado.
+;			R0!=0, se algo foi digitado.
+;-------------------------------------------------------------
+kbhit:		equ		0
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Bloqueia, esperando que seja digitada uma tecla.
+;			N?o coloca o caractere no visor.
+;Entra:		-
+;Retorna:	R0=caractere ASCII da tecla digitada.
+;-------------------------------------------------------------
+getchar:	equ		1
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Coloca um caractere no visor.
+;			O caractere ser? colocado na posi??o atual do cursor, o qual ser? incrementado.
+;			Ao receber um caractere BS ? Back Space (8), o cursor ? movido uma posi??o para a esquerda.
+;Entra:		R0 = caractere ASCII a ser colocado no visor
+;Retorna:	-
+;-------------------------------------------------------------
+putchar:	equ		2
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Coloca um string no visor.
+;			O string ? formado por bytes ASCII, terminado por ?\0? (0).
+;			O string ser? colocado no visor a partir da posi??o atual do cursor.
+;Entra:		R0 = ponteiro para o string do tipo "C"
+;Retorna:	-
+;-------------------------------------------------------------
+putmsg:		equ		3
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Move o cursor para a posi??o desejada.
+;Entra:		R0 = nova posi??o para o cursor.
+;			Esse valor deve estar entre 0 e 35. 
+;			Outros valores far?o com que o cursos desapare?a do visor.
+;Retorna:	-
+;-------------------------------------------------------------
+setcursor:	equ		4
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Seleciona a parede de trabalho
+;Entra: 	R0 = n?mero da parede.
+;Retorna:	R0 = largura da parede (abcissas ? coordenadas ?X?)
+;			R1 = altura da parede (ordenadas ? coordenadas ?Y?)
+;			Se o n?mero fornecido da parede for inv?lido, retorna R0 = R1 = -1 (HFFFF)
+;-------------------------------------------------------------
+setwall:	equ		5
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Solicita informa??o sobre o estado de um ladrilho.
+;Entra: 	R0 = diferen?a da coordenada ?X?, em rela??o ? posi??o atual da c?mera.
+;			R1 = diferen?a da coordenada ?Y?, em rela??o ? posi??o atual da c?mera.
+;			Esses valores podem ser +1, -1 ou 0.
+;Retorna:	R0 = o estado do ladrilho. 
+;			Esses valores podem ser:
+;				0 = ladrilho n?o usado)
+;				1 = ladrilho em boas condi??es
+;				2 = ladrilho danificado
+;				3 = coordenadas fora da parede
+;-------------------------------------------------------------
+read:		equ		6
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Move a c?mera para as coordenadas (0,0) da parede.
+;Entra:		-
+;Retorna:	-
+;-------------------------------------------------------------
+move00:		equ		7
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Move a c?mera. Uma vez chamada a fun??o, deve-se aguardar o encerramento do comando antes de enviar novo comando de movimenta??o.
+;			O deslocamento da c?mera ocorre na horizontal ou na vertical (nunca na diagonal).
+;			O deslocamento da c?mera demora T = 100ms + (NL-1) x 50ms, onde NL ? o n?mero de ladrilhos total do movimento comandado.
+;Entra: 	R0 = diferen?a da coordenada ?X?, em rela??o ? posi??o atual da c?mera, para deslocar a c?mera
+;			R1 = diferen?a da coordenada ?Y?, em rela??o ? posi??o atual da c?mera, para deslocar a c?mera
+;			Esses valores podem ser +2, -2, +1, -1 ou 0.
+;Retorna:	0, se n?o houve erro
+;			-1, se houve erro (ex: par?metros de entrada inv?lidos)
+;-------------------------------------------------------------
+move:		equ		8
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Informa se a c?mera est? em movimento.
+;Entra:		-
+;Retorna:	R0 == 0, se a c?mera est? parada.
+;			R0 != 0, se a c?mera est? em movimento.
+;-------------------------------------------------------------
+moving:		equ		9
+
+;
+;-------------------------------------------------------------
+;Fun??o:	Informa as coordenadas atuais da c?mera.
+;			Essa informa??o s? ? v?lida se a c?mera estiver parada.
+;Entra:		-
+;Retorna:	R0 = coordenada ?X? da c?mera
+;			R1 = coordenada ?Y? da c?mera
+;			Se a c?mera estiver em movimento, ser? retornado R0 = R1 = -1 (HFFFF)
+;-------------------------------------------------------------
+getcamera:	equ		10
+
+
+
+;
+;=============================================================
+;		In?cio do programa de aplica??o
+;=============================================================
+
+		org _APP
+
+                clr     parede
+                clr     larg
+                clr     alt
+                clr     vazios
+                clr     bons
+                clr     danificados
+                clr     x
+                clr     y
+                mov     #1, direcao
+
+                mov     #msg_inicial, r0
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA                            ; Msg inicial
+
+aguarda_enter:  mov     #getchar, r5                            ; Espera enter para comecar
+                jsr     r7, _SISTEMA
+                cmp     r0, #h0d
+                bne     aguarda_enter                           ; Verifica se enter
+
+aguarda_wall:   clr     r0                                      ; Espera numero da parede
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #limpa_visor, r0                        ; |
+                mov     #putmsg, r5                             ; | LIMPA VISOR
+                jsr     r7, _SISTEMA                            ; |   
+
+                clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #msg_parede, r0
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA                            ; Msg parede
+
+                mov     #getchar, r5
+                jsr     r7, _SISTEMA                            ; Aguarda a parede
+
+                cmp     r0, #h0d
+                bne     parede_n_enter
+
+                clr     r0                                      ; Espera numero da parede
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #limpa_visor, r0                        ; |
+                mov     #putmsg, r5                             ; | LIMPA VISOR
+                jsr     r7, _SISTEMA                            ; |   
+
+                clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #msg_encerramento, r0
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA                            ; Msg parede
+                hlt
+
+
+parede_n_enter: sub     #h30, r0                                ; Converte ascII -> Hex
+                mov     r0, parede                              ; Salva na variavel
+
+                mov     #setwall, r5
+                jsr     r7, _SISTEMA                            ; Seta parede
+ 
+                bpl     parede_val
+                mov     #limpa_visor, r0                        ; |
+                mov     #putmsg, r5                             ; | LIMPA VISOR
+                jsr     r7, _SISTEMA                            ; |
+
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #msg_parede_inv, r0
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA                            ; Msg parede
+
+                jmp     aguarda_enter                           ; Volta ao inicio
+
+                ;   ////// Parede valida \\\\\\\\
+
+parede_val:     mov     r0, larg
+                mov     r1, alt
+
+                clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #limpa_visor, r0                        ; |
+                mov     #putmsg, r5                             ; | LIMPA VISOR
+                jsr     r7, _SISTEMA                            ; |
+
+                clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #msg_parede_n, r0                       ; "Parede "
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+                ;
+                mov     parede, r0                              ; "n"
+                add     #h30, r0                                ; Hex -> Asc
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+                ;
+                mov     #msg_larg, r0                           ; ", Largura="
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+                ;
+                mov     larg, r0                                    ; "larg"
+                add     #h30, r0                                    ; Hex -> Asc
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+                ;
+                mov     #msg_alt, r0                                ; ", Altura="
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+                ;
+                mov     alt, r0                                 ; "alt"
+                add     #h30, r0                                ; Hex -> Asc
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+aguarda_enter_2:mov     #getchar, r5                            ; Espera != c para comecar
+                jsr     r7, _SISTEMA
+
+                cmp     r0, #h63                                ; c
+                bne     nao_czin
+                jmp     aguarda_wall
+
+nao_czin:       cmp     r0, #h43                                ; C
+                bne     nao_czao
+                jmp     aguarda_wall
+
+nao_czao:       cmp     r0, #h0d
+                bne     aguarda_enter_2
+                
+                ;/////// ALGORITMO COMECA \\\\\\\\\\\
+
+                clr     bons
+                clr     danificados
+                clr     vazios
+                clr     total
+
+                mov     #hffff, x
+                mov     #hffff, y
+
+                mov     #h1, direcao
+
+                mov     #move00, r5                             ; Seta camera
+                jsr     r7, _SISTEMA
+                
+while:          
+
+
+                mov     #kbhit, r5
+                jsr     r7, _SISTEMA
+                tst     r0
+                beq     sem_tecla                               ; Nenhuma tecla
+                ; Com tecla
+
+                mov     #getchar, r5
+                jsr     r7, _SISTEMA
+
+                cmp     r0, #h43
+                beq     cancela                                 ; Tecla = C
+                ; Tecla != C
+                cmp     r0, #h63
+                beq     cancela                                 ; Tecla = c
+                ; Tecla != c -> Continua
+                jmp     sem_tecla
+
+cancela:        clr     r0
+                clr     x
+                clr     y
+                clr     vazios
+                clr     bons
+                clr     danificados
+                clr     total
+                mov     parede, r0
+                mov     #setwall, r5
+                jsr     r7, _SISTEMA
+
+                jmp     parede_val
+
+sem_tecla:      clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #limpa_visor, r0                        ; |
+                mov     #putmsg, r5                             ; | LIMPA VISOR
+                jsr     r7, _SISTEMA                            ; |
+
+                clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #msg_coord_1, r0                       ; Msg Coord, parte 1
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                mov     #getcamera, r5                          ; Le coord da camera
+                jsr     r7, _SISTEMA                            ; r0 = x, r1 = y
+
+                cmp     r0, x
+                bne     continua                                ; Move foi efetivo
+                
+                ; Move nao foi efetivo, chegou em borda
+                mov     #0, r0
+                mov     #1, r1
+                mov     #move, r5
+                jsr     r7, _SISTEMA                            ; move(0, 1)
+
+                mov     #getcamera, r5                          ; Le coord da camera
+                jsr     r7, _SISTEMA                            ; r0 = x, r1 = y
+
+                cmp     r1, y
+                bne     volta                             ; Move foi efetivo
+        
+                ; Move nao foi efetivo, borda
+                jmp finaliza     ;FIM DO ALGORITMO
+
+volta:          neg     direcao
+                mov     r0, x
+                mov     r1, y
+                jmp     move_hor
+
+continua:       mov     r0, x
+                mov     r1, y
+
+                add     #h30, r0                                ; x, Hex -> Asc
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                mov     #',', r0                                ; ","
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                mov     y, r0
+                add     #h30, r0                                ; y, Hex -> Asc
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                mov     #msg_coord_2, r0                       ; Msg Coord, parte 2
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                mov     #0, r0
+                mov     #0, r1
+                mov     #read, r5                               ; Read camera (0,0)
+                jsr     r7, _SISTEMA
+
+                cmp     r0, #1
+                beq     igual                                   ; r0 = 1
+                blt     menor                                 ; < 1 ----> 0
+                bhi     maior                                 ; > 1
+                ; 1
+igual:          inc     bons                                ; bons += 1
+                inc     total
+                mov     #msg_bom, r0                            ; Msg Bom
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+
+move_hor:       mov     direcao, r0
+                mov     #0, r1
+                mov     #move, r5
+                jsr     r7, _SISTEMA                            ;   move(1/-1,0)
+
+espera:         mov     #moving, r5
+                jsr     r7, _SISTEMA
+                tst     r0
+                bne     espera                               ; while(moving != 0)
+
+                jmp     while
+                ;HLT
+
+
+menor:          inc     vazios                              ; vazios += 1
+                inc     total
+                mov     #msg_vazio, r0                           ; Msg vazio
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                jmp     move_hor
+                ;HLT
+
+maior:          cmp     r0, #2
+                bne     fora_wall                                 ; 3
+                ; 2
+                inc     danificados                          ; danificados += 1
+                inc     total
+                mov     #msg_danificado, r0                      ; Msg danificado
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                jmp     move_hor
+                ;HLT
+
+fora_wall:      
+
+                jmp     move_hor
+                ;HLT
+
+finaliza:       clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #limpa_visor, r0                        ; |
+                mov     #putmsg, r5                             ; | LIMPA VISOR
+                jsr     r7, _SISTEMA                            ; |
+
+                clr     r0
+                mov     #setcursor, r5
+                jsr     r7, _SISTEMA                            ; Seta cursor visor
+
+                mov     #msg_final_1, r0                       ; Msg final, parte 1
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                mov     bons, r1
+                jsr     r7, Converte_ASCII                      ; Printa convertido
+
+                mov     #msg_final_2, r0                       ; Msg final, parte 2
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                mov     danificados, r1
+                jsr     r7, Converte_ASCII                      ; Printa convertido
+
+                mov     #msg_final_3, r0                       ; Msg final, parte 3
+                mov     #putmsg, r5
+                jsr     r7, _SISTEMA
+
+                mov     vazios, r1
+                jsr     r7, Converte_ASCII                      ; Printa convertido
+
+aguarda_enter3: mov     #getchar, r5                            ; Espera enter para recomecar
+                jsr     r7, _SISTEMA
+                cmp     r0, #h0d
+                bne     aguarda_enter3                           ; Nao enter
+                ; Enter
+                jmp     aguarda_wall
+
+                ; Lidar com numeros
+Converte_ASCII: ; Valor em R0 
+                mov     r1, r2                 ;copia de r1 em r2
+                cmp     r1, #10
+                bge     mi_dez          ;>= 10
+                br      unidade
+                ; >= 10
+mi_dez:         cmp     r1, #20
+                bge     mi_vinte          ;>= 20
+                ;Parte dezena
+                mov     #h31, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #10, r2
+                br      unidade
+
+mi_vinte:       cmp     r1, #30
+                bge     mi_trinta          ;>= 30
+                ;Parte dezena
+                mov     #h32, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #20, r2
+                
+                br      unidade
+
+mi_trinta:      cmp     r1, #40
+                bge     mi_quarenta          ;>= 40
+                ;Parte dezena
+                mov     #h33, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #30, r2
+                br      unidade
+
+mi_quarenta:    cmp     r1, #50
+                bge     mi_cinquenta          ;>= 50
+                ;Parte dezena
+                mov     #h34, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #40, 2
+                br      unidade
+
+mi_cinquenta:   cmp     r1, #60
+                bge     mi_sessenta          ;>= 60
+                ;Parte dezena
+                mov     #h35, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #50, r2
+                br      unidade
+
+                ; Parte unidade
+unidade:        add     #h30, r2                                ; y, Hex -> Asc
+                mov     r2, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                rts     r7
+
+mi_sessenta:    cmp     r1, #70
+                bge     mi_setenta          ;>= 70
+                ;Parte dezena
+                mov     #h36, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #60, r2
+                br      unidade
+
+mi_setenta:     cmp     r1, #80
+                bge     mi_oitenta          ;>= 80
+                ;Parte dezena
+                mov     #h37, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #70, r2
+                br      unidade
+
+mi_oitenta:     cmp     r1, #90
+                bge     mi_noventa          ;>= 90
+                ;Parte dezena
+                mov     #h38, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #80, r2
+                br      unidade
+
+mi_noventa:     ;Parte dezena
+                mov     #h39, r0
+                mov     #putchar, r5
+                jsr     r7, _SISTEMA
+
+                sub     #90, r2
+                br      unidade
+
+        org hc00                                                ; Dados
+
+; Variaveis
+parede:             dw 0    ;0-1
+larg:               dw 0    ;2-3
+alt:                dw 0    ;4-5
+vazios:             dw 0    ;6-7
+bons:               dw 0    ;8-9
+danificados:        dw 0    ;a-b
+x:                  dw 0    ;c-d
+y:                  dw 0    ;e-f
+;c10
+direcao:            dw 0    ;0-1    | 1: ->, -1(FFFF): <-
+total:              dw 0    ;2-3
+
+; Mensagens
+limpa_visor:        dab '                                    ', 0
+msg_inicial:        dab 'Autor: Eduardo F <> Cartao: 00313339', 0
+msg_parede:         dab 'Informe a parede: ', 0
+msg_encerramento:   dab 'Programa finalizado.', 0
+msg_parede_inv:     dab 'Numero da parede invalido.', 0
+msg_parede_n:       dab 'Parede ', 0
+msg_larg:           dab ', Largura=', 0
+msg_alt:            dab ', Altura=', 0
+msg_coord_1:        dab 'Coordenadas (', 0
+msg_coord_2:        dab ') - ', 0
+msg_bom:            dab 'Bom', 0
+msg_vazio:          dab 'Vazio', 0
+msg_danificado:     dab 'Danificado', 0
+msg_final_1:        dab 'Bons: ', 0
+msg_final_2:        dab ', Danifs: ', 0
+msg_final_3:        dab ', Vazios: ', 0

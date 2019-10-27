@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1351698646 source:c:\users\viviane\documents\teaching\inf01203-estruturas de dados\17-avl\tad_avl\avl.cpp
+	<stdio.h>
+	<stdlib.h>
+	<conio.h>
+	<string.h>
+	"avl.h"
+
+1271776104 c:\users\viviane\documents\teaching\inf01203-estruturas de dados\17-avl\tad_avl\avl.h
+

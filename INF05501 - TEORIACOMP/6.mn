@@ -1,0 +1,39 @@
+// troca de valor entre registradores
+// ----------------------------------
+operation swap(A,B) {
+  1: if zero A then goto 0 else goto 2
+  2: do dec A goto 3
+  3: do inc B goto 1
+}
+
+// testa se A <= 2
+// ...............
+test test2(A) {
+  1: if zero A then goto true else goto 2
+  2: if cmp A 1 then goto true else goto false
+}
+
+// divide A por 2, B auxiliar
+// ...........................
+operation div2(A,B) {
+  1: do swap(A,B) goto 2
+  2: if zero B then goto 0 else goto 3
+  3: do dec B goto 4
+  4: if zero B then goto 0 else goto 5
+  5: do dec B goto 6
+  6: do inc A goto 2
+}
+
+// calcula chão de log2 A, B e C auxiliares
+operation log2(A,B,C) {
+1: do swap(A,B) goto 2
+2: if test2(B) then goto 0 else goto 3
+  3: do div2(B,C) goto 4
+  4: do inc A goto 2
+}
+
+main {
+  1: if zero X then goto 0 else goto 2
+  2: do log2(X,A,B) goto 3
+  3: do swap(X,Y) goto 0
+}

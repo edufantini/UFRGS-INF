@@ -1,0 +1,3 @@
+Swaps: 100514
+Recursões: 74596
+Tempo: 0.082033

@@ -1,0 +1,48 @@
+// troca de valor entre registradores
+// ----------------------------------
+operation swap(A,B) {
+  1: if zero A then goto 0 else goto 2
+  2: do dec A goto 3
+  3: do inc B goto 1
+}
+
+// copia A em B, C auxiliar
+// ........................
+operation copy(A,B,C) {
+  1: if zero A then goto 5 else goto 2
+  2: do dec A goto 3
+  3: do inc B goto 4
+  4: do inc C goto 1
+  5: if zero C then goto 0 else goto 6
+  6: do dec C goto 7
+  7: do inc A goto 5
+}
+
+// A:=A+B, C auxiliar
+// ------------------
+operation soma(A,B,C){
+  1: if zero B then goto 5 else goto 2
+  2: do dec  B goto 3
+  3: do inc  A goto 4
+  4: do inc  C goto 1
+  5: if zero C then goto 0 else goto 6
+  6: do dec  C goto 7
+  7: do inc  B goto 5
+}
+
+// A :+ A*B, C e D auxiliares
+operation mult(A,B,C,D) {
+  1: do swap(A,C) goto 2
+  2: if zero C then goto 0 else goto 3
+  3: do soma(A,B,D) goto 4
+  4: do dec C goto 2
+}
+
+main {
+  1: if zero X then goto 6 else goto 2
+  2: do copy(X,Y,A) goto 3
+  3: do dec X goto 4
+  4: if zero X then goto 0 else goto 5
+  5: do mult(Y, X, A, B) goto 3
+  6: do inc Y goto 0
+}

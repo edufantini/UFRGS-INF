@@ -1,0 +1,35 @@
+1.
+    Usaremos 2 registradores para representar a pilha.
+
+    Um registrador 'S' será usado para armazenar os elementos da pilha, usando números de Gödel.
+      Por exemplo, em uma pilha cujos elementos de entrada foram 12, 32 e 2, em ordem, o registrador S
+      conteria o valor S = 2¹² * 3³² * 5² * 7⁰ * 11⁰ * 13⁰...
+
+    Outro registrador 'SP' servirá como apontador do topo da pilha. Esse registrador conterá o k-ésimo número primo
+    em uma pilha de k elementos.
+      Em nossa pilha exemplo, SP = 5. Representa o ultímo número primo de S com expoente != 0.
+
+2.
+    A representação da pilha vazia seria dada por S = 2⁰*3⁰*5⁰... SP = 0.
+
+3.
+    Sendo 'R' uma pilha e 'n' um número natural, definimos PUSH(n, R) da seguinte forma:
+
+      Caso R esteja vazia, o registrador S de R recebe o valor de 2^n  e SP recebe 1.
+      Caso contrário, S = S*(p^n), onde p é o primeiro número primo de S com expoente zero e SP é incrementado.
+
+4.
+    Sendo 'R' uma pilha, definimos POP(R):
+
+      Como o registrador SP de R contém a quantidade de números primos de S cujo expoente
+      não é nulo (chamaremos esse valor de k), o valor a ser devolvido pela operação
+      está representado pelo k-ésimo número primo de S.
+      Assim, basta dividirmos S pelo valor do k-ésimo número primo da pilha (elevado a seu respectivo expoente)
+      e retornar o expoente desse k-ésimo primo.
+
+5.
+
+    Sendo 'R' uma pilha, definimos EMPTY?(R) como:
+
+      Verdadeiro, caso SP de R seja igual a zero
+      Falso, caso contrário.

@@ -1,0 +1,47 @@
+a)
+    P1: ent(3)
+        (1,(3,3))
+        (2,(3,3))
+        (3,(6,6))
+        (4,(6,3))
+        (1,(6,2))
+        (2,(6,2))
+        (3,(12,4))
+        (4,(12,2))
+        (1,(12,1))
+        sai(12,1)
+
+    -> A computação é finita e o resultado final é 12.
+
+    P2: ent(3)
+        (1,(3,3))
+        (2,(3,3))
+        (3,(6,6))
+        (1,(3,6))
+        (2,(3,6))
+        (3,(6,12))
+        (1,(3,12))
+        (2,(3,12))
+        (3,(6,24))
+        (1,(3,24))
+          .....
+
+    -> A computação é infinita. O teste 1 nunca é satisfeito.
+
+    P3: ent(3)
+        sai(3,3)
+
+    -> A computação é finita e o resultado final é 9.
+
+b)
+    <P1,RECT>(x) = sai(1,2x( int(x/2) )) = 2x( int(x/2) )
+    <P2,RECT>(x) = {
+                       -> sai(2,1) = 2, se x=1
+
+                       -> Não existe função computada e o programa entra em loop, caso contrário
+
+                    }
+    <P3,RECT>(x) = sai(x,x) = x²
+
+c)
+    Não.

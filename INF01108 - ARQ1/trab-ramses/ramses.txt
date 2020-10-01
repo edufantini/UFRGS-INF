@@ -1,0 +1,143 @@
+
+;   TRABALHO ARQ I  -   RAMSES
+;   EDUARDO FANTINI -   00313339
+
+ORG HC3                 ; Variaveis
+        ADR: DB 0       ; Address: Vai receber o endereco de inicio do vetor
+
+ORG HD1                 ; Contadores
+        LD: DB 0        ; Ladrilhos danificados
+        LB: DB 0        ; Ladrilhos bons
+        NU: DB 0        ; Espacos sem ladrilhos
+        LT: DB 0        ; Total de ladrilhos
+
+ORG H00
+        LDR A, #H00     ; |
+        LDR B, #H00     ; |
+        STR A, ADR      ; |
+        STR A, LD       ; |--> Zera variaveis e contadores
+        STR A, LB       ; |
+        STR A, NU       ; |
+        STR A LT        ; |
+
+        LDR B, HD0      ; |--> Salva endereco de inicio do vetor em ADR
+        STR B, ADR      ; |
+
+;   PARA MELHOR COMPREENDER O PROBLEMA
+;   OS BITS FORAM CLASSIFICADOS DA
+;   SEGUINTE FORMA:
+;       {   7           0   }
+;       {   |AA|BB|CC|DD|   }
+;   E DESSA FORMA, O ALGORITMO
+;   FOI DIVIDIDO EM BLOCOS PARA TRATAR
+;   ESPECIFICAMENTE DE CADA PAR DE BITS
+
+LOOP_A: LDR A, ADR, I   ; Registrador A recebe o valor da palavra cujo
+                        ; cujo endereco esta em ADR
+        AND A, #HC0     ; Aplica mascara, isola bits 7 e 6
+        JZ F_NU_A       ; Bits em 11 -> Jump para incrementar o contador NU
+        SUB A, #H40     ; Subtrai 01 do par de bits
+        JZ F_LB_A       ; Bits em 01 -> Jump para incrementar o contador LB
+        SUB A, #H40     ; Subtrai 01 do par de bits
+        JZ F_LD_A       ; Bits em 10 -> Jump para incrementar o contador LD
+        JMP FIM         ; Bits em 00 -> Jump para encerrar programa
+
+LOOP_B: LDR A, ADR, I   ; Registrador A recebe o valor da palavra cujo
+                        ; cujo endereco esta em ADR
+        AND A, #H30     ; Aplica mascara, isola bits 5 e 4
+        JZ F_NU_B       ; Bits em 11 -> Jump para incrementar o contador NU
+        SUB A, #H10     ; Subtrai 01 do par de bits
+        JZ F_LB_B       ; Bits em 01 -> Jump para incrementar o contador LB
+        SUB A, #H10     ; Subtrai 01 do par de bits
+        JZ F_LD_B       ; Bits em 10 -> Jump para incrementar o contador LD
+        JMP FIM         ; Bits em 00 -> Jump para encerrar programa
+
+LOOP_C: LDR A, ADR, I   ; Registrador A recebe o valor da palavra cujo
+                        ; cujo endereco esta em ADR
+        AND A, #H0C     ; Aplica mascara, isola bits 3 e 2
+        JZ F_NU_C       ; Bits em 11 -> Jump para incrementar o contador NU
+        SUB A, #H04     ; Subtrai 01 do par de bits
+        JZ F_LB_C       ; Bits em 01 -> Jump para incrementar o contador LB
+        SUB A, #H04     ; Subtrai 01 do par de bits
+        JZ F_LD_C       ; Bits em 10 -> Jump para incrementar o contador LD
+        JMP FIM         ; Bits em 00 -> Jump para encerrar programa
+
+LOOP_D: LDR A, ADR, I   ; Registrador A recebe o valor da palavra cujo
+                        ; cujo endereco esta em ADR
+        AND A, #H03     ; Aplica mascara, isola bits 1 e 0
+        JZ F_NU_D       ; Bits em 11 -> Jump para incrementar o contador NU
+        SUB A, #H01     ; Subtrai 01 do par de bits
+        JZ F_LB_D       ; Bits em 01 -> Jump para incrementar o contador LB
+        SUB A, #H01     ; Subtrai 01 do par de bits
+        JZ F_LD_D       ; Bits em 10 -> Jump para incrementar o contador LD
+        JMP FIM         ; Bits em 00 -> Jump para encerrar programa
+
+F_LB_A: LDR B, LB       ; |
+        ADD B, #1       ; |--> Incrementa contador e vai para proximo
+        STR B, LB       ; |    par de bits
+        JMP LOOP_B      ; |---> O padrao se repete nos proximos loops
+
+F_LD_A: LDR B, LD
+        ADD B, #1
+        STR B, LD
+        JMP LOOP_B
+
+F_NU_A: LDR B, NU
+        ADD B, #1
+        STR B, NU
+        JMP LOOP_B
+
+F_LB_B: LDR B, LB
+        ADD B, #1
+        STR B, LB
+        JMP LOOP_C
+
+F_LD_B: LDR B, LD
+        ADD B, #1
+        STR B, LD
+        JMP LOOP_C
+
+F_NU_B: LDR B, NU
+        ADD B, #1
+        STR B, NU
+        JMP LOOP_C
+
+F_LB_C: LDR B, LB
+        ADD B, #1
+        STR B, LB
+        JMP LOOP_D
+
+F_LD_C: LDR B, LD
+        ADD B, #1
+        STR B, LD
+        JMP LOOP_D
+
+F_NU_C: LDR B, NU
+        ADD B, #1
+        STR B, NU
+        JMP LOOP_D
+
+F_LB_D: LDR B, LB
+        ADD B, #1
+        STR B, LB
+        JMP PROX
+
+F_LD_D: LDR B, LD
+        ADD B, #1
+        STR B, LD
+        JMP PROX
+
+F_NU_D: LDR B, NU
+        ADD B, #1
+        STR B, NU
+        JMP PROX
+
+PROX:   LDR A, ADR      ; |
+        ADD A, #1       ; |--> Fim da palavra de memoria -> Passar para a proxima
+        STR A, ADR      ; |
+        JMP LOOP_A      ; |
+
+FIM:    LDR A, LD       ; |
+        ADD A, LB       ; |--> Par 00 encontrado, encerra execucao
+        STR A, LT       ; |
+        HLT             ; |

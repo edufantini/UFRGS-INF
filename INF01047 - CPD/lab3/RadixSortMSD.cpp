@@ -1,13 +1,17 @@
 /*
     Radix Sort MSD String Sort
-    Autores:    Eduardo Fantini
+    Authors:    Eduardo Fantini
                 Thiago Lermen
-    Input: 2 text files
+    Input: 1 text file
     Output:
-        - 1 file including the sorting of the words int he book
-        - 1 file containing the accumulated number of each word in the book
-    
+        - 1 file containing the words of the input file in lexicographic order
+		- 1 file containing a list of all the unique words in the input file, in
+		  lexicographic order, followed by their respective repetition numbers
 
+ 
+    g++ RadixSortMSD.cpp -o radix
+ 
+ 
 */
 
 #include <iostream>
@@ -18,11 +22,12 @@
 #include "rang.h"
 
 
-
 using namespace std;
 
+// alphabet size
 const int ALPH_SZ = 26;
 
+// prints a single vector
 void printVector(vector<string> words){
     int size = words.size();
     for (int i = 0 ; i < size ; i++){
@@ -31,15 +36,7 @@ void printVector(vector<string> words){
     cout << endl;
 }
 
-void printArray(int a[], int size){
-    cout << "[";
-    for (int i=0;i<size;i++){
-        cout << a[i] << " ";
-    }
-    cout << "]" << endl;
-}
-
-
+// open and reads from a file, pushing the data to the 'words' vector
 int readFile(string file_name, vector<string> *words){
     fstream file;
     string line, word;
@@ -57,25 +54,22 @@ int readFile(string file_name, vector<string> *words){
 
 // retorna o caractere na posição 'd'
 int charAt(string word, int d){
-    if (d < word.size()){
-
-//        cout << "Palavra: "<< word << endl;
-//        cout << "Char na posicao " << d+1 << ": "<< word[d] << endl;
-//        int e = toascii(word[d]);
-//        cout << "Valor ascii do caractere e:" << e << endl;
-//        cout << "Posicao do alfabeto do caractere:" << e-64 << endl;
-
+    if(d < word.size())
         return toascii(word[d]);
-    }else{
+    else
         return -1;
-    }
 }
 
+// driver code for the sorting algorithm
 void radixSortMSD(vector<string> &input, vector<string> &output, int lo, int hi, int d){
-    if (hi <= lo)
+ 
+	if (hi <= lo)
         return;
 
+    // max word size
     int R = 256;
+    
+    // vetor de acumulação
     int count[R+2] = {0};
 
     // contando numero de caracteres em count
@@ -100,6 +94,7 @@ void radixSortMSD(vector<string> &input, vector<string> &output, int lo, int hi,
     }
 }
 
+// save both output files
 int saveResults(vector<string> &words, vector<string> &count, string fout, string fcount) {
 	
 	ofstream file(fout);
@@ -113,8 +108,11 @@ int saveResults(vector<string> &words, vector<string> &count, string fout, strin
 		filec << count[i]  << " => " << count[i+1] << endl;
 	}
 	filec.close();
+	return 1;
 }
 
+
+// generate output file name
 string outputFilename(string file) {
 	// removendo extensao
 	size_t i = file.find_last_of(".");
@@ -123,6 +121,7 @@ string outputFilename(string file) {
 	return outName;
 }
 
+// generate output file name for the counting file
 string outputCountFilename(string file) {
 	// removendo extensao
 	size_t i = file.find_last_of(".");
@@ -131,7 +130,8 @@ string outputCountFilename(string file) {
 	return outName;
 }
 
-int contaPalavras(vector<string> &words, vector<string> &count) {
+// get the number of repetitions of each word
+int countWords(vector<string> &words, vector<string> &count) {
 	string curWord = "";
 	int singleWords = 0;
 	int currWordCount = 0;
@@ -146,18 +146,15 @@ int contaPalavras(vector<string> &words, vector<string> &count) {
 			curWord = words[i];
 			currWordCount = 1;
 			count.push_back(words[i]);
-//			printVector(wordCount);
 		} else{
 			// lendo 2+ ocorrencia da palavra
 			currWordCount++;
-			
-//			cout << "Palavra igual" << endl;
-//			cout << curWord << " | " << currWordCount << endl;
 		}
 	}
 	count.push_back(to_string(currWordCount));
 	return singleWords;
 }
+
 
 int main(int argc, char** argv){
 	
@@ -196,7 +193,7 @@ int main(int argc, char** argv){
 	
 	cout << rang::fg::yellow << "Iniciando contagem de repetições de palavras..." << rang::fg::reset << endl;
 	const clock_t b = clock();
-	int n = contaPalavras(words, count);
+	int n = countWords(words, count);
 	t = float(clock() - b)/CLOCKS_PER_SEC;
 	
 	if(!n) {

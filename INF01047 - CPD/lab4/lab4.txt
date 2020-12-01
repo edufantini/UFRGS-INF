@@ -1,0 +1,11 @@
+Exercício 4 CPD - 2020
+Eduardo Fantini
+
+Método de hashing escolhido:
+	Polinomial usando Hornet e 31 como primo escolhido.
+	Modular.
+
+Método de resolução de conflitos:
+	Endereçamento direto.
+
+Os demais dados estão na saída do arquivo fonte.

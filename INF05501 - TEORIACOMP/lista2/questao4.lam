@@ -1,0 +1,8 @@
+let
+
+    true  = \a. \b. a;
+    false = \a. \b. b;
+    if    = \a. \b. \c. a b c;
+
+    not   = \a. a false true;
+    xor   = \a. \b. if a (not b) b;

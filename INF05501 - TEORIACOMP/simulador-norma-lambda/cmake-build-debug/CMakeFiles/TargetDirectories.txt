@@ -1,0 +1,3 @@
+/home/phi/UFRGS-INF/INF05501 - TEORIACOMP/simulador-norma-lambda/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/phi/UFRGS-INF/INF05501 - TEORIACOMP/simulador-norma-lambda/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/phi/UFRGS-INF/INF05501 - TEORIACOMP/simulador-norma-lambda/cmake-build-debug/CMakeFiles/simulador_norma_lambda.dir

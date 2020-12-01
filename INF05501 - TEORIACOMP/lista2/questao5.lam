@@ -1,0 +1,23 @@
+let
+
+    true 	 = \a. \b. a;
+    false 	= \a. \b. b;
+    if    	= \a. \b. \c. a b c;
+    pair  	= \a. \b. \c. c a b ;
+    not   	= \a. a false true;
+    xor   	= \a. \b. if a (not b) b;
+    fst   	= \p. p true;
+    snd   	= \p. p false;
+
+    zero 	= \n. n true;
+    succ 	= \n. pair false n;
+    pred	= \n. if (zero n) n (snd n);
+
+    Y		= \f. (\x. f(x x)) (\x. f(x x));
+
+    subrec 	= \r. \m n. (if (zero n) m (pred (r m (pred n))));
+    
+    sub		= Y subrec;
+
+in
+

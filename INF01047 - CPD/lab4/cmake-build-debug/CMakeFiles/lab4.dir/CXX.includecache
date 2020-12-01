@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/phi/UFRGS-INF/INF01047 - CPD/lab4/main.cpp
+iostream
+-
+utility
+-
+vector
+-
+string
+-
+fstream
+-
+rang.h
+/home/phi/UFRGS-INF/INF01047 - CPD/lab4/rang.h
+
+/home/phi/UFRGS-INF/INF01047 - CPD/lab4/rang.h
+unistd.h
+-
+windows.h
+-
+io.h
+-
+memory
+-
+algorithm
+-
+atomic
+-
+cstdlib
+-
+cstring
+-
+iostream
+-
+

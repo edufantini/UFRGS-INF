@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/simulador_norma_lambda.dir/main.cpp.o -o simulador_norma_lambda 

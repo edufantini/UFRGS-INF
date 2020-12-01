@@ -1,0 +1,40 @@
+let
+
+true   = \a b. a;
+false  = \a b. b;
+if     = \a b c. a b c;
+
+pair   = \a b c. c a b;
+fst    = \p. p true;
+snd    = \p. p false;
+
+Y      = \f. (\x. f (x x)) (\x. f (x x));
+
+empty = \x. true;
+cons  = pair;
+
+head  = fst;
+tail  = snd;
+isEmpty = \l. l (\a b.false);
+
+isZero   = \n. n (\x.false) true;
+succ     = \n. \p q. p (n p q);
+shiftInc = \p. pair (snd p) (succ (snd p));
+pred     = \n. fst (n shiftInc (pair 0 0));
+sub 	 = \m n. (pred n) m;
+
+crescenterec = \r. \n. (if (isZero (fst n)) 1 (if (isZero (snd n)) 0 (r (pair (pred (fst n)) (pred (snd n))))));
+
+crescente = Y crescenterec;
+
+contaCrescenterec = \r. \l. (if (isEmpty l) 0 (if (crescente (fst l) ) (succ (r (snd l))) (r (snd l)) ));
+
+contaCrescente = Y contaCrescenterec;
+
+geraListaRec = Y \r. \a. \b. (if (isZero (sub b a)) (cons b (r a (succ b))) (empty));
+
+geraLista = \n. geraListaRec n 1;
+
+in
+
+(geraLista 3)

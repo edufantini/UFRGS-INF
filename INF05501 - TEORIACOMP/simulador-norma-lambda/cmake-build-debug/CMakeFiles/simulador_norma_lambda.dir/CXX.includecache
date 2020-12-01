@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/phi/UFRGS-INF/INF05501 - TEORIACOMP/simulador-norma-lambda/main.cpp
+iostream
+-
+vector
+-
+

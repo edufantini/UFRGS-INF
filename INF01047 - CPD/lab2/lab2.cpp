@@ -306,15 +306,15 @@ void qsortLomutoMed3(vector<int> &v, int lo, int hi, int &s, int &r) {
 	}
 }
 
-void qsortHoareMed3(vector<int> &v, int lo, int hi, int &s, int &r) {
-	if(hi > lo) {
-		int q = hoarePartMed3(v, lo, hi, s);
-		r += 2;
-		// particonador é o  elemento q divide??
-		qsortHoareMed3(v, lo, q-1, s, r); // recursao no 1o sub-array
-		qsortHoareMed3(v, q+1, hi, s, r); // recursao no 2o sub-array
-	}
-}
+// void qsortHoareMed3(vector<int> &v, int lo, int hi, int &s, int &r) {
+// 	if(hi > lo) {
+// 		int q = hoarePartMed3(v, lo, hi, s);
+// 		r += 2;
+// 		// particonador é o  elemento q divide??
+// 		qsortHoareMed3(v, lo, q-1, s, r); // recursao no 1o sub-array
+// 		qsortHoareMed3(v, q+1, hi, s, r); // recursao no 2o sub-array
+// 	}
+// }
 
 void qsortHoareRand(vector<int> &v, int lo, int hi, int &s, int &r) {
 	if(hi > lo) {
